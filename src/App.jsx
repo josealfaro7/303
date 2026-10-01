@@ -1,7 +1,4 @@
-import * as THREE from 'three';
-import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Text, Text3D, Center, Float, Environment } from '@react-three/drei';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Ticket, IdCard, UserSearch } from 'lucide-react';
 
@@ -77,99 +74,71 @@ function Logo3D({ themeColor }) {
 
 // --- COMPONENTES AUXILIARES ---
 
-// Letra individual con animación de caída física
-function FallingLetter({ char, index, xOffset, customColor }) {
-  const groupRef = useRef();
-
-  useFrame((state, delta) => {
-    // Delay de 0.25s entre cada letra
-    const delay = index * 0.25;
-    if (state.clock.elapsedTime > delay) {
-      // Suavizado manual (lerp) para evitar errores de referencia con la librería THREE
-      groupRef.current.position.y += (0 - groupRef.current.position.y) * (delta * 4);
-    }
-  });
-
+// Letra individual 2D con animación de caída y flotación
+function FallingLetter2D({ char, index, customColor }) {
   return (
-    // Empieza 15 unidades por encima de la pantalla
-    <group ref={groupRef} position={[xOffset, 15, 0]}>
-      
-      {/* Texto Frontal Principal */}
-      <Text
-        font={import.meta.env.BASE_URL + "fuentes/lacavale.ttf"}
-        fontSize={5.3} // Escala fijada a 5.3 como solicitaste
-        outlineWidth={0.03}
-        outlineColor={customColor}
-      >
-        {char}
-        <meshStandardMaterial 
-          color={customColor}
-          emissive={customColor}
-          emissiveIntensity={0.3} 
-          roughness={0.15} 
-          metalness={0.3} 
-        />
-      </Text>
-      
-      {/* Aura Trasera / Glow */}
-      <Text
-        font={import.meta.env.BASE_URL + "fuentes/lacavale.ttf"}
-        fontSize={5.5} 
-        position={[0, 0, -0.6]}
-        fillOpacity={1}
-      >
-        {char}
-        <meshBasicMaterial 
-          color={customColor} 
-          toneMapped={false}
-        />
-      </Text>
-    </group>
-  );
-}
-
-// Logo Animado (R3F) con Letras Independientes
-function Title3D({ customColor }) {
-  // Distancias relativas. Ancho total aprox: 8.8. La mitad es 4.4.
-  const letters = [
-    { char: '3', x: 0 },
-    { char: '0', x: 3.2 },
-    { char: '3', x: 6.4 },
-    { char: '!', x: 8.8 },
-  ];
-
-  return (
-    <Float 
-      speed={2} 
-      rotationIntensity={0.4} 
-      floatIntensity={0.6}
+    <motion.div
+      initial={{ y: -300, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{
+        type: "spring",
+        damping: 12,
+        stiffness: 40,
+        delay: index * 0.25,
+      }}
+      className="inline-block"
     >
-      {/* Grupo centrador manual para evitar conflictos del componente Center con las posiciones iniciales */}
-      <group position={[-4.4, 0, 0]} rotation={[0, 0, -0.1]}>
-        {letters.map((l, i) => (
-          <FallingLetter 
-            key={i} 
-            char={l.char} 
-            index={i} 
-            xOffset={l.x} 
-            customColor={customColor} 
-          />
-        ))}
-      </group>
-    </Float>
+      <motion.span
+        animate={{ y: [0, -20, 0] }} // Flotación constante tipo <Float>
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: index * 0.3, // Desfasaje entre letras
+        }}
+        className="inline-block select-none"
+        style={{
+          fontFamily: "'La Cavale Solitaire', sans-serif",
+          color: customColor,
+          fontSize: "clamp(8rem, 25vw, 25rem)", // Tamaño responsivo gigante
+          lineHeight: 1,
+          textShadow: `
+            0 0 10px ${customColor}, 
+            0 0 30px ${customColor}, 
+            0 0 60px ${customColor}
+          `,
+        }}
+      >
+        {char}
+      </motion.span>
+    </motion.div>
   );
 }
 
-// 3. Hero Section (3D R3F)
+// Logo 2D Animado
+function Title2D({ customColor }) {
+  const letters = ['3', '0', '3', '!'];
+  
+  return (
+    <div className="flex flex-row items-center justify-center z-10 drop-shadow-2xl">
+      {letters.map((char, i) => (
+        <FallingLetter2D key={i} char={char} index={i} customColor={customColor} />
+      ))}
+    </div>
+  );
+}
+
+// 3. Hero Section (2D Ligero)
 function Hero({ themeColor }) {
+  // Estados locales para los ajustes
   const [customColor, setCustomColor] = useState('#FF0055');
 
   return (
-    <section className="h-screen w-full relative flex flex-col items-center justify-center pt-32 overflow-hidden bg-black cursor-grab active:cursor-grabbing">
+    <section className="h-screen w-full relative flex flex-col items-center justify-center pt-32 overflow-hidden bg-black">
       
       {/* PANEL DE CONTROL (Color) */}
       <div className="absolute top-32 left-8 z-50 flex flex-col gap-5 bg-[#111] p-5 rounded-xl border border-white/10 w-72 shadow-2xl">
-        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1 border-b border-gray-800 pb-2">Ajustes 3D</p>
+        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1 border-b border-gray-800 pb-2">Ajustes Neón</p>
         
         {/* Selector de Color */}
         <div className="flex flex-col gap-2">
@@ -186,46 +155,12 @@ function Hero({ themeColor }) {
         </div>
       </div>
 
-      {/* TÍTULO 3D OSCILANTE CON ILUMINACIÓN AJUSTADA */}
+      {/* TÍTULO 2D CON CAÍDA Y FLOTACIÓN */}
       <div className="absolute inset-0 z-0 flex items-center justify-center">
-        <Canvas camera={{ position: [0, 0, 15], fov: 45 }}>
-          <Suspense fallback={null}>
-            <color attach="background" args={['#000000']} />
-            
-            <ambientLight intensity={1.5} />
-            
-            <spotLight 
-              position={[0, 5, 12]} 
-              angle={0.6} 
-              penumbra={0.8} 
-              intensity={8} 
-              color="white" 
-            />
-            
-            <spotLight 
-              position={[-10, -5, 5]} 
-              angle={0.5} 
-              penumbra={0.5} 
-              intensity={12} 
-              color={customColor} 
-            />
-
-            <spotLight 
-              position={[10, 10, -5]} 
-              angle={0.6} 
-              penumbra={1} 
-              intensity={10} 
-              color="white" 
-            />
-            
-            <Title3D customColor={customColor} />
-            
-            <Environment preset="city" />
-          </Suspense>
-        </Canvas>
+        <Title2D customColor={customColor} />
       </div>
       
-      <div className="z-10 mt-auto mb-32 text-center pointer-events-none px-4">
+      <div className="z-10 mt-auto mb-32 text-center px-4">
         <motion.h1 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
