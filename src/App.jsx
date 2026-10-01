@@ -295,12 +295,12 @@ function Services() {
 
 // 5. Equipo (Tipográfico Horizontal, Sin Fotos)
 function Team() {
-  // Datos de ejemplo del equipo (puedes personalizarlos luego)
+  // Datos reales del equipo
   const teamData = [
-    { name: "ALEXANDER", role: "DIRECTOR CREATIVO" },
-    { name: "VALENTINA", role: "HEAD DE PRODUCCIÓN" },
-    { name: "MARCOS", role: "CURADOR MUSICAL" },
-    { name: "SOPHIA", role: "ART DIRECTION" }
+    { name: "ANDREW", role: "DJ MINIMAL" },
+    { name: "JULIAN", role: "DJ PROGRESIVE / LATIN MUSIC" },
+    { name: "ADRIAN", role: "DJ HOUSE" },
+    { name: "DAVID", role: "BARTENDER" }
   ];
 
   return (
