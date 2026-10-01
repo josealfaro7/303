@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;600;700;800&display=swap');
+
+@font-face { font-family: 'Abys'; src: url('/fuentes/Abys-Regular.otf'); }
+@font-face { font-family: 'Elbrush'; src: url('/fuentes/Elbrush.ttf'); }
+@font-face { font-family: 'Hey August'; src: url('/fuentes/Hey August.ttf'); }
+@font-face { font-family: 'Hey November'; src: url('/fuentes/Hey November.ttf'); }
+@font-face { font-family: 'Horsemen'; src: url('/fuentes/Horsemen (Demo Version).otf'); }
+@font-face { font-family: 'La Cavale Solitaire'; src: url('/fuentes/La Cavale Solitaire.ttf'); }
+@font-face { font-family: 'Wild Wolf'; src: url('/fuentes/Wild Wolf.ttf'); }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root, [data-theme='dark'] {
+  --bg-color: #000000;
+  --text-main: #FFFFFF;
+  --accent-main: #E6005C; /* Fucsia vibrante */
+  --accent-secondary: #D4AF37; /* Dorado */
+}
+
+[data-theme='alt'] {
+  --bg-color: #050505;
+  --text-main: #F0F0F0;
+  --accent-main: #00E676; /* Verde Neón */
+  --accent-secondary: #00B0FF; /* Azul Neón */
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: 'Montserrat', sans-serif;
+  overflow-x: hidden;
+  transition: background-color 1s ease, color 1s ease;
+}
+
+html {
+  scroll-behavior: smooth;
+}
