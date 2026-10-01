@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Text3D, Center, Float, Environment } from '@react-three/drei';
 import { motion } from 'framer-motion';
+import { Calendar, Ticket, IdCard, UserSearch } from 'lucide-react';
 
 // --- CONFIGURACIÓN DE TEMAS ---
 const themes = [
@@ -342,6 +343,13 @@ function Team() {
 
 // 6. Footer / Contacto (Sin formularios)
 function Footer() {
+  const advantages = [
+    { icon: Calendar, text: "Elige tu próxima fecha" },
+    { icon: Ticket, text: "Facilidad de financiamiento" },
+    { icon: IdCard, text: "Only for cool people" },
+    { icon: UserSearch, text: "Guest Star" }
+  ];
+
   return (
     <footer id="contacto" className="py-32 md:py-48 w-full flex flex-col justify-center relative z-10 bg-transparent">
       <div className="container mx-auto px-8 flex flex-col items-center text-center">
@@ -359,7 +367,7 @@ function Footer() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: false }}
-          transition={{ duration: 1.5, delay: 0.4 }}
+          transition={{ duration: 1.5, delay: 0.2 }}
           className="flex flex-col gap-12"
         >
           <a href="mailto:info.303.es@gmail.com" className="text-xl md:text-5xl font-bold tracking-widest text-white hover:text-accentMain transition-colors duration-700">
@@ -370,9 +378,37 @@ function Footer() {
           </a>
         </motion.div>
         
-        <div className="mt-32 md:mt-48 text-[9px] font-bold tracking-[0.6em] uppercase text-gray-800">
-          only for cool people
-        </div>
+        {/* Banner de Ventajas */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false }}
+          transition={{ duration: 1.5, delay: 0.6 }}
+          className="mt-32 md:mt-48 w-full max-w-5xl flex flex-col"
+        >
+          <div className="flex flex-row justify-between items-center w-full px-4 md:px-12 mb-6">
+            {advantages.map((adv, i) => {
+              const Icon = adv.icon;
+              return (
+                <div key={i} className="flex flex-col items-center flex-1">
+                  <Icon className="w-6 h-6 md:w-8 md:h-8 text-white mb-6" strokeWidth={1} />
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="w-full h-[1px] bg-gray-600 mb-6 relative">
+             <div className="absolute top-0 left-1/2 w-1/4 h-[1px] bg-white -translate-x-1/2"></div>
+          </div>
+          
+          <div className="flex flex-row justify-between items-start w-full px-2 md:px-6 text-center">
+            {advantages.map((adv, i) => (
+              <span key={i} className="flex-1 px-1 text-[9px] md:text-sm font-normal text-white">
+                {adv.text}
+              </span>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </footer>
   );
