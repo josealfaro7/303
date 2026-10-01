@@ -293,32 +293,48 @@ function Services() {
   );
 }
 
-// 5. Equipo (Minimalista, Placeholder único)
+// 5. Equipo (Tipográfico Horizontal, Sin Fotos)
 function Team() {
+  // Datos de ejemplo del equipo (puedes personalizarlos luego)
+  const teamData = [
+    { name: "ALEXANDER", role: "DIRECTOR CREATIVO" },
+    { name: "VALENTINA", role: "HEAD DE PRODUCCIÓN" },
+    { name: "MARCOS", role: "CURADOR MUSICAL" },
+    { name: "SOPHIA", role: "ART DIRECTION" }
+  ];
+
   return (
     <section id="equipo" className="py-32 md:py-48 w-full flex flex-col justify-center bg-transparent relative z-10">
-      <div className="container mx-auto px-8 max-w-7xl">
+      <div className="container mx-auto px-8 max-w-6xl">
         <motion.h2 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false }}
           transition={{ duration: 1.5 }}
-          className="text-2xl md:text-4xl font-light text-center mb-16 md:mb-24 tracking-[0.4em] uppercase text-white"
+          className="text-2xl md:text-4xl font-light text-center mb-20 md:mb-32 tracking-[0.4em] uppercase text-white"
         >
           Conoce al equipo
         </motion.h2>
         
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: false }}
-          transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
-          className="w-full aspect-[16/9] md:aspect-[21/9] bg-[#0A0A0A] flex items-center justify-center group overflow-hidden"
-        >
-           <span className="text-[#1A1A1A] tracking-[0.5em] text-xs uppercase group-hover:text-gray-600 transition-colors duration-1000">
-             [ Team Photo Placeholder ]
-           </span>
-        </motion.div>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-16 md:gap-4 w-full">
+          {teamData.map((member, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false }}
+              transition={{ duration: 1, delay: i * 0.15 }}
+              className="flex flex-col items-center text-center group cursor-default"
+            >
+              <h3 className="text-xl md:text-2xl font-bold tracking-widest text-white transition-colors duration-500 hover:text-accentMain">
+                {member.name}
+              </h3>
+              <p className="mt-3 text-[10px] font-bold tracking-[0.25em] uppercase text-gray-500">
+                {member.role}
+              </p>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
