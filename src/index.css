@@ -5,30 +5,23 @@
 @font-face { font-family: 'Hey August'; src: url('/fuentes/Hey August.ttf'); }
 @font-face { font-family: 'Hey November'; src: url('/fuentes/Hey November.ttf'); }
 @font-face { font-family: 'Horsemen'; src: url('/fuentes/Horsemen (Demo Version).otf'); }
-@font-face { font-family: 'La Cavale Solitaire'; src: url('/fuentes/La Cavale Solitaire.ttf'); }
+@font-face { font-family: 'La Cavale Solitaire'; src: url('/fuentes/lacavale.ttf'); }
 @font-face { font-family: 'Wild Wolf'; src: url('/fuentes/Wild Wolf.ttf'); }
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root, [data-theme='dark'] {
-  --bg-color: #000000;
-  --text-main: #FFFFFF;
-  --accent-main: #E6005C; /* Fucsia vibrante */
-  --accent-secondary: #D4AF37; /* Dorado */
-}
-
-[data-theme='alt'] {
-  --bg-color: #050505;
-  --text-main: #F0F0F0;
-  --accent-main: #00E676; /* Verde Neón */
-  --accent-secondary: #00B0FF; /* Azul Neón */
+:root {
+  --color-bg: #000000;
+  --color-text: #FFFFFF;
+  --color-primary: #E6005C; /* Fucsia vibrante */
+  --color-secondary: #D4AF37; /* Dorado */
 }
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-main);
+  background-color: var(--color-bg);
+  color: var(--color-text);
   font-family: 'Montserrat', sans-serif;
   overflow-x: hidden;
   transition: background-color 1s ease, color 1s ease;

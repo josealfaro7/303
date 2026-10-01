@@ -7,12 +7,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--bg-color)",
-        textMain: "var(--text-main)",
-        accentMain: "var(--accent-main)",
-        accentSecondary: "var(--accent-secondary)",
-        navBg: "var(--nav-bg)",
-        cardBg: "var(--card-bg)"
+        background: "var(--color-bg)",
+        textMain: "var(--color-text)",
+        accentMain: "var(--color-primary)",
+        accentSecondary: "var(--color-secondary)"
       },
       fontFamily: {
         montserrat: ['Montserrat', 'sans-serif'],
