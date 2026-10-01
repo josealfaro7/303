@@ -95,7 +95,7 @@ function FallingLetter({ char, index, xOffset, customColor }) {
       
       {/* Texto Frontal Principal */}
       <Text
-        font="/fuentes/lacavale.ttf"
+        font={import.meta.env.BASE_URL + "fuentes/lacavale.ttf"}
         fontSize={5.3} // Escala fijada a 5.3 como solicitaste
         outlineWidth={0.03}
         outlineColor={customColor}
@@ -112,7 +112,7 @@ function FallingLetter({ char, index, xOffset, customColor }) {
       
       {/* Aura Trasera / Glow */}
       <Text
-        font="/fuentes/lacavale.ttf"
+        font={import.meta.env.BASE_URL + "fuentes/lacavale.ttf"}
         fontSize={5.5} 
         position={[0, 0, -0.6]}
         fillOpacity={1}
