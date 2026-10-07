@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://gyozascongeladas.github.io/303/",
+  "homepage": "https://josealfaro7.github.io/303/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
