@@ -1,12 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { Calendar, Ticket, IdCard, UserSearch, Settings, X } from 'lucide-react';
-
-// --- CONFIGURACIÓN DE TEMAS ---
-const themes = [
-  { id: 'dark', name: 'Deep Nightlife', color: '#000000', accent: '#E6005C' },
-  { id: 'alt', name: 'Alternative', color: '#050505', accent: '#00E676' }
-];
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { Calendar, Ticket, IdCard, UserSearch, X, ChevronLeft, ChevronRight, MapPin, Clock, Music, ArrowUpRight } from 'lucide-react';
 
 // 1. Navbar con animación de scroll (Fondo Glassmorphism + Logo 303!)
 function Navbar() {
@@ -42,9 +36,10 @@ function Navbar() {
         {/* Links que desaparecen al scrollear */}
         <motion.div 
           style={{ opacity: linksOpacity, pointerEvents: linksPointerEvents }}
-          className="flex flex-row justify-between md:justify-evenly items-center w-full px-8 md:px-16 text-[10px] md:text-xs tracking-[0.2em] md:tracking-[0.4em] uppercase font-light text-textMain/70 absolute inset-0"
+          className="flex flex-row justify-between md:justify-evenly items-center w-full px-6 md:px-16 text-[9px] md:text-xs tracking-[0.18em] md:tracking-[0.4em] uppercase font-light text-textMain/70 absolute inset-0"
         >
           <a href="#servicios" className="hover:text-accentSecondary transition-colors duration-500">Servicios</a>
+          <a href="#cartelera" className="hover:text-accentSecondary transition-colors duration-500">Cartelera</a>
           <a href="#equipo" className="hover:text-accentSecondary transition-colors duration-500">Equipo</a>
           <a href="#contacto" className="hover:text-accentSecondary transition-colors duration-500">Contacto</a>
           <a href="mailto:info.303.es@gmail.com" className="relative group text-textMain font-normal">
@@ -82,10 +77,8 @@ function Navbar() {
 
 // --- COMPONENTES AUXILIARES ---
 
-// --- COMPONENTES AUXILIARES ---
-
 // Letra individual 2D con animación de caída y flotación
-function FallingLetter2D({ char, index, customColor }) {
+function FallingLetter2D({ char, index }) {
   return (
     <motion.div
       initial={{ y: -300, opacity: 0 }}
@@ -217,6 +210,304 @@ function Services() {
           ))}
         </div>
       </div>
+    </section>
+  );
+}
+
+// 4.5. Sección Cartelera (Próximos Eventos - Carrusel Horizontal + Modal)
+const eventsData = [
+  {
+    id: "303-acid-warehouse",
+    title: "303: ACID WAREHOUSE",
+    date: "24 NOV",
+    location: "Secret Warehouse, Alicante",
+    schedule: "23:30 — 07:00 HRS",
+    lineup: ["ANDREW (Extended Acid Set)", "JULIAN", "INVITADO ESPECIAL TBA"],
+    description:
+      "Una inmersión cruda en el sonido underground. Estrobos industriales, sistema de sonido cuadrafónico y una locación secreta revelada únicamente a los asistentes con entrada 12 horas antes del evento.",
+    flyer:
+      "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=900&q=85",
+    ticketUrl: "https://es.ra.co/",
+  },
+  {
+    id: "mediterranean-rooftop",
+    title: "SUNSET FREQUENCIES",
+    date: "08 DIC",
+    location: "Villa Panorámica, Altea",
+    schedule: "18:00 — 03:00 HRS",
+    lineup: ["ADRIAN (Deep House Sunset)", "JULIAN (Progressive Session)"],
+    description:
+      "Transición hipnótica desde el atardecer frente al Mediterráneo hasta la medianoche. Mixología de autor en vivo, aforo estrictamente reducido y curaduría sonora diseñada para fluir con el entorno.",
+    flyer:
+      "https://images.unsplash.com/photo-1545128485-c400e7702796?auto=format&fit=crop&w=900&q=85",
+    ticketUrl: "https://fourvenues.com/",
+  },
+  {
+    id: "nocturna-vip-session",
+    title: "NOCTURNA // 303 CLUB",
+    date: "21 DIC",
+    location: "Skyline Penthouse, Benidorm",
+    schedule: "00:00 — 06:30 HRS",
+    lineup: ["ANDREW B2B ADRIAN", "VISUALS BY KINETIC LAB"],
+    description:
+      "Experiencia audiovisual en las alturas. Iluminación láser minimalista sobre vistas 360° de la costa, barra de destilados de colección y dresscode riguroso Total Black.",
+    flyer:
+      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=900&q=85",
+    ticketUrl: "https://xceed.me/",
+  },
+  {
+    id: "ny-underground-ritual",
+    title: "GENESIS NYE 01.01",
+    date: "31 DIC",
+    location: "Finca Privada, Murcia",
+    schedule: "23:59 — 10:00 HRS",
+    lineup: ["FULL 303 ROSTER", "ANDREW", "JULIAN", "ADRIAN"],
+    description:
+      "El primer amanecer del año bajo el sello 303. Más de diez horas ininterrumpidas de música electrónica selecta, producción escénica de alto contraste y servicio premium toda la noche.",
+    flyer:
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=900&q=85",
+    ticketUrl: "https://es.ra.co/",
+  },
+];
+
+function Cartelera() {
+  const carouselRef = useRef(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  // Desplazamiento horizontal exacto de 1 columna con botones en escritorio
+  const handleScroll = (direction) => {
+    if (!carouselRef.current) return;
+    const firstCard = carouselRef.current.querySelector('article');
+    const gap = window.innerWidth >= 768 ? 32 : 24; // md:gap-8 (32px) o gap-6 (24px)
+    const scrollAmount = firstCard ? firstCard.offsetWidth + gap : 360;
+    carouselRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  };
+
+  // Cerrar modal con tecla Escape y bloquear el scroll del body cuando está abierto
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedEvent(null);
+      }
+    };
+
+    if (selectedEvent) {
+      window.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [selectedEvent]);
+
+  return (
+    <section id="cartelera" className="py-20 md:py-48 w-full flex flex-col justify-center bg-transparent relative z-10">
+      <div className="container mx-auto px-8 max-w-6xl">
+        {/* Cabecera de sección y controles del carrusel */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-20 gap-6">
+          <div>
+            <motion.p
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false }}
+              transition={{ duration: 0.8 }}
+              className="text-[10px] tracking-[0.4em] uppercase text-accentSecondary font-bold mb-3"
+            >
+              Próximos Eventos
+            </motion.p>
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false }}
+              transition={{ duration: 1.2 }}
+              className="text-3xl md:text-6xl font-extrabold tracking-tighter uppercase text-textMain"
+            >
+              Cartelera<span className="text-accentSecondary">.</span>
+            </motion.h2>
+          </div>
+
+          {/* Botones de navegación (Escritorio) */}
+          <div className="hidden md:flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => handleScroll('left')}
+              aria-label="Anterior evento"
+              className="p-3 border border-gray-800 hover:border-accentSecondary text-textMain hover:text-accentSecondary transition-colors duration-300"
+            >
+              <ChevronLeft className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleScroll('right')}
+              aria-label="Siguiente evento"
+              className="p-3 border border-gray-800 hover:border-accentSecondary text-textMain hover:text-accentSecondary transition-colors duration-300"
+            >
+              <ChevronRight className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+          </div>
+        </div>
+
+        {/* Carrusel Horizontal de Flyers */}
+        <div
+          ref={carouselRef}
+          className="flex gap-6 md:gap-8 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar pb-4"
+        >
+          {eventsData.map((ev, index) => (
+            <motion.article
+              key={ev.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false }}
+              transition={{ duration: 0.8, delay: index * 0.1 }}
+              onClick={() => setSelectedEvent(ev)}
+              className="snap-start shrink-0 w-[82vw] sm:w-[calc((100%-1.5rem)/2)] md:w-[calc((100%-4rem)/3)] group cursor-pointer select-none"
+            >
+              {/* Flyer Poster 3:4 */}
+              <div className="relative aspect-[3/4] w-full overflow-hidden border border-gray-800 group-hover:border-accentMain transition-colors duration-500">
+                <img
+                  src={ev.flyer}
+                  alt={ev.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700 ease-out"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500" />
+
+                {/* Fecha flotante minimalista */}
+                <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md px-3 py-1.5 border border-white/10">
+                  <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-accentSecondary">
+                    {ev.date}
+                  </span>
+                </div>
+
+                {/* Indicador sutil de abrir modal */}
+                <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-accentMain text-background p-2">
+                  <ArrowUpRight className="w-4 h-4" />
+                </div>
+              </div>
+
+              {/* Pie tipográfico del Flyer */}
+              <div className="mt-5 flex flex-col items-start">
+                <h3 className="text-lg md:text-xl font-bold tracking-widest uppercase text-textMain group-hover:text-accentMain transition-colors duration-500">
+                  {ev.title}
+                </h3>
+                <p className="mt-1.5 text-[10px] md:text-xs font-light tracking-[0.25em] uppercase text-gray-400">
+                  {ev.location}
+                </p>
+              </div>
+            </motion.article>
+          ))}
+        </div>
+      </div>
+
+      {/* Modal Superpuesto de Detalle del Evento */}
+      <AnimatePresence>
+        {selectedEvent && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setSelectedEvent(null)}
+            className="fixed inset-0 z-[150] flex items-center justify-center p-4 md:p-8 bg-black/85 backdrop-blur-md overflow-y-auto"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 30, scale: 0.96 }}
+              transition={{ type: "spring", damping: 24, stiffness: 260 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-4xl bg-background border border-gray-800 shadow-2xl overflow-hidden my-auto max-h-[90vh] flex flex-col md:flex-row"
+            >
+              {/* Botón Cerrar */}
+              <button
+                type="button"
+                onClick={() => setSelectedEvent(null)}
+                aria-label="Cerrar modal"
+                className="absolute top-4 right-4 z-20 p-2 bg-black/70 text-gray-400 hover:text-textMain border border-gray-800 hover:border-textMain transition-colors duration-300"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Columna Imagen del Flyer */}
+              <div className="w-full md:w-5/12 relative bg-black shrink-0">
+                <img
+                  src={selectedEvent.flyer}
+                  alt={selectedEvent.title}
+                  className="w-full h-64 md:h-full object-cover contrast-125"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent md:hidden" />
+              </div>
+
+              {/* Columna Información del Evento */}
+              <div className="w-full md:w-7/12 p-6 md:p-10 flex flex-col justify-between overflow-y-auto">
+                <div>
+                  <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-accentSecondary">
+                    {selectedEvent.date} // 303 OFFICIAL EVENT
+                  </span>
+                  <h3 className="mt-2 text-2xl md:text-4xl font-extrabold tracking-tight uppercase text-textMain">
+                    {selectedEvent.title}<span className="text-accentSecondary">.</span>
+                  </h3>
+
+                  {/* Metadatos: Lugar y Horario */}
+                  <div className="mt-6 flex flex-col gap-3 border-y border-gray-800 py-4 text-xs tracking-[0.2em] uppercase text-gray-300">
+                    <div className="flex items-center gap-3">
+                      <MapPin className="w-4 h-4 text-accentMain shrink-0" />
+                      <span>{selectedEvent.location}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Clock className="w-4 h-4 text-accentMain shrink-0" />
+                      <span>{selectedEvent.schedule}</span>
+                    </div>
+                  </div>
+
+                  {/* Lineup */}
+                  <div className="mt-6">
+                    <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.35em] uppercase text-accentSecondary mb-3">
+                      <Music className="w-3.5 h-3.5" />
+                      <span>Lineup</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedEvent.lineup.map((artist, idx) => (
+                        <span
+                          key={idx}
+                          className="text-[11px] font-semibold tracking-[0.2em] uppercase px-3 py-1.5 border border-gray-800 text-textMain"
+                        >
+                          {artist}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Descripción */}
+                  <p className="mt-6 text-xs md:text-sm font-light tracking-wider text-gray-400 leading-relaxed">
+                    {selectedEvent.description}
+                  </p>
+                </div>
+
+                {/* CTA Comprar Tickets */}
+                <div className="mt-8 pt-4">
+                  <a
+                    href={selectedEvent.ticketUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-3 py-4 px-6 bg-accentMain text-background font-bold text-xs tracking-[0.35em] uppercase hover:opacity-90 transition-opacity duration-300"
+                  >
+                    <span>Comprar Tickets</span>
+                    <ArrowUpRight className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
@@ -382,88 +673,25 @@ function Footer() {
   );
 }
 
-// 7. ThemeSwitcher Desplegable (Framer Motion)
-const palettes = [
-  { id: 'deep-nightlife', name: 'Deep Nightlife', bg: '#000000', text: '#FFFFFF', primary: '#E6005C', secondary: '#D4AF37' },
-  { id: 'acid-minimal', name: 'Acid Minimal', bg: '#0D0D0D', text: '#F2F2F2', primary: '#CCFF00', secondary: '#4A4A4A' },
-  { id: 'mediterranean', name: 'Mediterranean Midnight', bg: '#040914', text: '#FDFAF2', primary: '#FF6B00', secondary: '#FF9E79' },
-  { id: 'brutalism', name: 'Brutalismo Industrial', bg: '#000000', text: '#FFFFFF', primary: '#E0E0E0', secondary: '#FF1A1A' }
-];
-
-function ThemeSwitcher() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [activeTheme, setActiveTheme] = useState('deep-nightlife');
-
-  const applyTheme = (theme) => {
-    document.documentElement.style.setProperty('--color-bg', theme.bg);
-    document.documentElement.style.setProperty('--color-text', theme.text);
-    document.documentElement.style.setProperty('--color-primary', theme.primary);
-    document.documentElement.style.setProperty('--color-secondary', theme.secondary);
-    localStorage.setItem('303-theme', theme.id);
-    setActiveTheme(theme.id);
-  };
-
-  useEffect(() => {
-    const saved = localStorage.getItem('303-theme');
-    const themeToApply = palettes.find(t => t.id === saved) || palettes[0];
-    applyTheme(themeToApply);
-  }, []);
-
-  return (
-    <>
-      <button 
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-8 right-8 z-[100] p-4 rounded-full bg-accentMain text-background shadow-2xl hover:scale-110 transition-transform duration-300"
-      >
-        <Settings className="w-6 h-6" />
-      </button>
-
-      {isOpen && (
-        <motion.div 
-          initial={{ opacity: 0, y: 50, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 50, scale: 0.95 }}
-          transition={{ type: "spring", damping: 20, stiffness: 300 }}
-          className="fixed bottom-24 right-8 z-[100] w-72 bg-[#111] border border-gray-800 rounded-2xl shadow-2xl overflow-hidden"
-        >
-          <div className="flex justify-between items-center p-4 border-b border-gray-800">
-            <span className="text-xs font-bold tracking-widest uppercase text-gray-400">Temas</span>
-            <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-textMain transition-colors">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-          
-          <div className="p-2 flex flex-col gap-1">
-            {palettes.map(theme => (
-              <button 
-                key={theme.id}
-                onClick={() => applyTheme(theme)}
-                className={`flex items-center justify-between p-3 rounded-xl transition-all duration-300 ${activeTheme === theme.id ? 'bg-gray-800' : 'hover:bg-gray-900'}`}
-              >
-                <span className="text-xs font-medium text-textMain">{theme.name}</span>
-                <div className="flex gap-2">
-                  <div className="w-4 h-4 rounded-full border border-gray-700" style={{ backgroundColor: theme.bg }} />
-                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.primary }} />
-                </div>
-              </button>
-            ))}
-          </div>
-        </motion.div>
-      )}
-    </>
-  );
-}
-
 // --- APP ROOT ---
 export default function App() {
+  useEffect(() => {
+    // Asegura que siempre quede fija la paleta original Deep Nightlife (Fucsia #E6005C y Dorado #D4AF37)
+    document.documentElement.style.setProperty('--color-bg', '#000000');
+    document.documentElement.style.setProperty('--color-text', '#FFFFFF');
+    document.documentElement.style.setProperty('--color-primary', '#E6005C');
+    document.documentElement.style.setProperty('--color-secondary', '#D4AF37');
+    localStorage.removeItem('303-theme');
+  }, []);
+
   return (
     <div className="w-full min-h-screen selection:bg-accentMain selection:text-background bg-background text-textMain transition-colors duration-500">
       <Navbar />
       <Hero />
       <Services />
+      <Cartelera />
       <Team />
       <Footer />
-      <ThemeSwitcher />
     </div>
   );
 }
