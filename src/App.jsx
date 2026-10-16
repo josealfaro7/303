@@ -227,7 +227,7 @@ const eventsData = [
       "Una inmersión cruda en el sonido underground. Estrobos industriales, sistema de sonido cuadrafónico y una locación secreta revelada únicamente a los asistentes con entrada 12 horas antes del evento.",
     flyer:
       "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=900&q=85",
-    ticketUrl: "https://es.ra.co/",
+    ticketUrl: "",
   },
   {
     id: "mediterranean-rooftop",
@@ -240,7 +240,7 @@ const eventsData = [
       "Transición hipnótica desde el atardecer frente al Mediterráneo hasta la medianoche. Mixología de autor en vivo, aforo estrictamente reducido y curaduría sonora diseñada para fluir con el entorno.",
     flyer:
       "https://images.unsplash.com/photo-1545128485-c400e7702796?auto=format&fit=crop&w=900&q=85",
-    ticketUrl: "https://fourvenues.com/",
+    ticketUrl: "",
   },
   {
     id: "nocturna-vip-session",
@@ -253,7 +253,7 @@ const eventsData = [
       "Experiencia audiovisual en las alturas. Iluminación láser minimalista sobre vistas 360° de la costa, barra de destilados de colección y dresscode riguroso Total Black.",
     flyer:
       "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=900&q=85",
-    ticketUrl: "https://xceed.me/",
+    ticketUrl: "",
   },
   {
     id: "ny-underground-ritual",
@@ -266,7 +266,7 @@ const eventsData = [
       "El primer amanecer del año bajo el sello 303. Más de diez horas ininterrumpidas de música electrónica selecta, producción escénica de alto contraste y servicio premium toda la noche.",
     flyer:
       "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=900&q=85",
-    ticketUrl: "https://es.ra.co/",
+    ticketUrl: "",
   },
 ];
 
@@ -491,17 +491,15 @@ function Cartelera() {
                   </p>
                 </div>
 
-                {/* CTA Comprar Tickets */}
+                {/* CTA Comprar Tickets (sin redirección hasta asignar ticketera) */}
                 <div className="mt-8 pt-4">
-                  <a
-                    href={selectedEvent.ticketUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-3 py-4 px-6 bg-accentMain text-background font-bold text-xs tracking-[0.35em] uppercase hover:opacity-90 transition-opacity duration-300"
+                  <button
+                    type="button"
+                    className="w-full inline-flex items-center justify-center gap-3 py-4 px-6 bg-accentMain text-background font-bold text-xs tracking-[0.35em] uppercase hover:opacity-90 transition-opacity duration-300 cursor-pointer"
                   >
                     <span>Comprar Tickets</span>
                     <ArrowUpRight className="w-4 h-4" />
-                  </a>
+                  </button>
                 </div>
               </div>
             </motion.div>
