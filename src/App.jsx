@@ -135,8 +135,8 @@ function Hero() {
   return (
     <section className="h-screen w-full relative flex flex-col items-center justify-center pt-32 overflow-hidden bg-transparent">
       
-      {/* TÍTULO 2D CON CAÍDA Y FLOTACIÓN */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center -mt-32 md:mt-0">
+      {/* TÍTULO 2D CON CAÍDA Y FLOTACIÓN (Decorativo; el H1 único incluye 303! para SEO) */}
+      <div aria-hidden="true" className="absolute inset-0 z-0 flex items-center justify-center -mt-32 md:mt-0">
         <Title2D />
       </div>
       
@@ -147,7 +147,7 @@ function Hero() {
           transition={{ duration: 2, delay: 0.5, ease: "easeOut" }}
           className="text-xl md:text-3xl font-light tracking-[0.4em] leading-loose text-textMain drop-shadow-lg"
         >
-          CREAMOS EXPERIENCIAS, <br className="hidden md:block" />
+          <span className="sr-only">303! — </span>CREAMOS EXPERIENCIAS, <br className="hidden md:block" />
           <span className="text-accentSecondary font-bold">NO SOLO EVENTOS</span>
         </motion.h1>
 
@@ -188,6 +188,7 @@ function Services() {
   return (
     <section id="servicios" className="py-20 md:py-48 w-full flex flex-col justify-center bg-transparent relative z-10">
       <div className="container mx-auto px-8 max-w-5xl">
+        <h2 className="sr-only">Servicios de Producción de Eventos</h2>
         <div className="flex flex-col gap-20 md:gap-32">
           {servicesData.map((s, i) => (
             <motion.div 
@@ -198,9 +199,9 @@ function Services() {
               transition={{ duration: 0.8, ease: "easeOut", delay: i * 0.1 }}
               className="flex flex-col items-start"
             >
-              <h2 className="text-4xl md:text-7xl font-extrabold tracking-tighter text-textMain transition-colors duration-500 hover:text-accentMain cursor-default">
+              <h3 className="text-4xl md:text-7xl font-extrabold tracking-tighter text-textMain transition-colors duration-500 hover:text-accentMain cursor-default">
                 {s.title}<span className="text-accentSecondary">.</span>
-              </h2>
+              </h3>
               <motion.p 
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
@@ -458,7 +459,7 @@ function Cartelera() {
               <div className="relative aspect-[3/4] w-full overflow-hidden border border-gray-800 group-hover:border-accentMain transition-colors duration-500">
                 <img
                   src={ev.flyer}
-                  alt={ev.title}
+                  alt={`Flyer del evento ${ev.title} — ${ev.tag} en ${ev.location} | 303!`}
                   loading="lazy"
                   className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out"
                 />
@@ -509,7 +510,7 @@ function Cartelera() {
               <div className="w-full lg:w-[35%] h-72 sm:h-80 lg:h-full relative bg-black shrink-0 overflow-hidden">
                 <img
                   src={selectedEvent.flyer}
-                  alt={selectedEvent.title}
+                  alt={`Flyer oficial de ${selectedEvent.title} — ${selectedEvent.tag} en ${selectedEvent.location} | 303!`}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent lg:hidden" />
@@ -809,13 +810,20 @@ function Cartelera() {
                       {selectedEvent.admissionNote}
                     </p>
                   )}
-                  <button
-                    type="button"
+                  <a
+                    href={selectedEvent.ticketUrl || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => {
+                      if (!selectedEvent.ticketUrl) {
+                        e.preventDefault();
+                      }
+                    }}
                     className="w-full inline-flex items-center justify-center gap-3 py-4 px-8 bg-accentMain text-background font-black text-xs md:text-sm tracking-[0.35em] uppercase hover:opacity-90 transition-opacity duration-300 cursor-pointer"
                   >
                     <span>Comprar Tickets</span>
                     <ArrowUpRight className="w-5 h-5" />
-                  </button>
+                  </a>
                 </div>
               </div>
             </motion.div>
@@ -874,14 +882,22 @@ function Team() {
   );
 }
 
-// 6. Footer / Contacto (Sin formularios)
+// 6. Footer / Contacto (Hardened Form)
 function Footer() {
+  const [formError, setFormError] = useState("");
+
   const advantages = [
     { icon: Calendar, text: "Elige tu próxima fecha" },
     { icon: Ticket, text: "Facilidad de financiamiento" },
     { icon: IdCard, text: "Only for cool people" },
     { icon: UserSearch, text: "Guest Star" }
   ];
+
+  // Sanitización contra XSS reflejado (elimina caracteres < y >)
+  const sanitizeInput = (str) => str.replace(/[<>]/g, "").trim();
+
+  // Validación estricta de formato de correo electrónico
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   return (
     <footer id="contacto" className="py-20 md:py-48 w-full flex flex-col justify-center relative z-10 bg-transparent">
@@ -906,19 +922,39 @@ function Footer() {
           <form 
             onSubmit={(e) => {
               e.preventDefault();
-              const email = e.target.email.value;
-              const msg = e.target.message.value;
-              window.location.href = `mailto:info.303.es@gmail.com?subject=Nuevo Contacto de ${email}&body=${encodeURIComponent(msg)}`;
+              setFormError("");
+
+              const rawEmail = e.target.email.value || "";
+              const rawMsg = e.target.message.value || "";
+
+              const cleanEmail = sanitizeInput(rawEmail).slice(0, 120);
+              const cleanMsg = sanitizeInput(rawMsg).slice(0, 1000);
+
+              if (!emailRegex.test(cleanEmail)) {
+                setFormError("Por favor, introduce un correo electrónico válido.");
+                return;
+              }
+
+              if (!cleanMsg) {
+                setFormError("Por favor, escribe un mensaje válido.");
+                return;
+              }
+
+              const subject = encodeURIComponent(`Nuevo Contacto de ${cleanEmail}`);
+              const body = encodeURIComponent(cleanMsg);
+              window.location.href = `mailto:info.303.es@gmail.com?subject=${subject}&body=${body}`;
             }}
             className="flex flex-col gap-10 text-left w-full"
           >
-            {/* Input Correo con Floating Label */}
+            {/* Input Correo con Floating Label y maxLength estricto */}
             <div className="relative group">
               <input 
                 type="email" 
                 name="email"
                 required
+                maxLength={120}
                 placeholder=" "
+                onChange={() => formError && setFormError("")}
                 className="peer bg-transparent border-b border-gray-600 py-3 text-textMain text-sm md:text-base focus:outline-none focus:border-textMain transition-colors duration-500 w-full"
               />
               <label className="absolute left-0 top-3 text-gray-500 text-xs md:text-sm tracking-widest uppercase transition-all duration-300 peer-focus:-top-4 peer-focus:text-[9px] peer-focus:text-textMain peer-valid:-top-4 peer-valid:text-[9px] peer-valid:text-gray-400 pointer-events-none">
@@ -926,19 +962,27 @@ function Footer() {
               </label>
             </div>
             
-            {/* Input Mensaje como cuadro amplio sin barra de scroll */}
+            {/* Input Mensaje como cuadro amplio sin barra de scroll y maxLength estricto */}
             <div className="relative group mt-2">
               <textarea 
                 name="message"
                 required
+                maxLength={1000}
                 rows="5"
                 placeholder=" "
+                onChange={() => formError && setFormError("")}
                 className="peer bg-transparent border border-gray-600 p-4 text-textMain text-sm md:text-base focus:outline-none focus:border-textMain transition-colors duration-500 w-full resize-none h-36 md:h-40 overflow-hidden no-scrollbar"
               ></textarea>
               <label className="absolute left-4 top-4 text-gray-500 text-xs md:text-sm tracking-widest uppercase transition-all duration-300 peer-focus:-top-6 peer-focus:left-0 peer-focus:text-[9px] peer-focus:text-textMain peer-valid:-top-6 peer-valid:left-0 peer-valid:text-[9px] peer-valid:text-gray-400 pointer-events-none">
                 Mensaje
               </label>
             </div>
+
+            {formError && (
+              <p className="text-xs font-semibold tracking-widest uppercase text-accentMain -mt-4">
+                {formError}
+              </p>
+            )}
 
             {/* Botón Enviar Minimalista */}
             <button 

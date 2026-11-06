@@ -1,0 +1,21 @@
+{
+  "name": "303! | Experiencias y Eventos",
+  "short_name": "303!",
+  "description": "Productora de eventos privados de lujo y música electrónica en Alicante, Altea, Benidorm y Murcia.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#E6005C",
+  "icons": [
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
